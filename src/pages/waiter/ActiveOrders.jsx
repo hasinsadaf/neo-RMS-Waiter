@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Eye } from "lucide-react";
-import api from "@/services/api";
+import { fetchOrders } from "@/services/order";
 
 import {
   Card,
@@ -73,18 +73,17 @@ function ActiveOrders() {
     return params.get("status");
   }, [location.search]);
 
-  const fetchOrders = useCallback(async () => {
+  const loadOrders = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const statusQuery = statusParam?.trim()
-        ? `/orders?status=${encodeURIComponent(statusParam.trim())}`
-        : "/orders?status=Pending,Preparing,Ready";
+      const statuses = statusParam?.trim()
+        ? statusParam.trim()
+        : "Pending,Preparing,Ready";
 
-      const response = await api.get(statusQuery);
-
-      setOrders(response.data || []);
+      const data = await fetchOrders(statuses);
+      setOrders(data || []);
     } catch (err) {
       setError("Failed to load active orders. Please try again.");
     } finally {
@@ -93,8 +92,8 @@ function ActiveOrders() {
   }, [statusParam]);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    loadOrders();
+  }, [loadOrders]);
 
   const filteredOrders = useMemo(() => {
     if (!searchTable.trim()) return orders;
@@ -120,7 +119,7 @@ function ActiveOrders() {
                   placeholder="Search by table number..."
                   value={searchTable}
                   onChange={(e) => setSearchTable(e.target.value)}
-                  className="w-full bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C] md:w-64"
+                  className="w-full bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F] md:w-64"
                 />
               </div>
             </div>
@@ -167,7 +166,7 @@ function ActiveOrders() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="gap-1 rounded-full border-neutral-300 text-neutral-800 hover:border-[#C3110C] hover:text-white hover:bg-[#C3110C]"
+                                className="gap-1 rounded-full border-neutral-300 text-neutral-800 hover:border-[#FF4D4F] hover:text-white hover:bg-[#FF4D4F]"
                                 onClick={() =>
                                   navigate(`/waiter/billing/${order.id}`)
                                 }

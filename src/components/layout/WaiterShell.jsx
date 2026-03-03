@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import WaiterNavbar from "./WaiterNavbar.jsx";
+import WaiterSidebar from "./WaiterSidebar.jsx";
 import WaiterFooter from "./WaiterFooter.jsx";
+import { fetchCurrentUserName } from "../../services/profile";
+
 
 export default function WaiterShell() {
   // attempt to populate waiter profile (name) from backend if missing
@@ -12,21 +14,10 @@ export default function WaiterShell() {
     let mounted = true;
     (async () => {
       try {
-        const api = (await import("@/services/api")).default;
-        const possiblePaths = ["/auth/me", "/users/me", "/me"];
-        for (const p of possiblePaths) {
-          try {
-            const res = await api.get(p);
-            const data = res?.data?.data || res?.data || {};
-            const fetchedName = data?.fullName || data?.name || data?.username;
-            if (mounted && fetchedName) {
-              localStorage.setItem("waiterName", fetchedName);
-              localStorage.setItem("userName", fetchedName);
-              break;
-            }
-          } catch (err) {
-            // try next path
-          }
+        const fetchedName = await fetchCurrentUserName();
+        if (mounted && fetchedName) {
+          localStorage.setItem("waiterName", fetchedName);
+          localStorage.setItem("userName", fetchedName);
         }
       } catch (err) {
         // ignore
@@ -40,12 +31,15 @@ export default function WaiterShell() {
 
   return (
     <>
-      <WaiterNavbar />
-      <div className="flex min-h-screen flex-col pt-16">
-        <main className="flex-1">
-          <Outlet />
+      <WaiterSidebar />
+      <div className="flex min-h-screen">
+        {/* push content right on medium+ screens to make room for fixed sidebar */}
+        <main className="flex-1 md:ml-60 flex flex-col">
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <WaiterFooter />
         </main>
-        <WaiterFooter />
       </div>
     </>
   );

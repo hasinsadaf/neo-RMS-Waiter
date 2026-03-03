@@ -1,14 +1,14 @@
 import React from "react";
 
 const baseClasses =
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C3110C] disabled:pointer-events-none disabled:opacity-60";
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors transform active:scale-95 active:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#FF4D4F] disabled:pointer-events-none disabled:opacity-60";
 
 const variantClasses = {
-  default: "bg-[#C3110C] text-white hover:bg-[#E6501B]",
+  default: "bg-gradient-to-br from-[#FF4D4F] to-[#FF7F7F] text-white hover:from-[#FF7F7F] hover:to-[#FFB3B3]",
   outline:
-    "border border-[#C3110C] bg-white text-[#C3110C] hover:bg-[#FDE2D3]",
+    "border border-[#FF4D4F] bg-white text-[#FF4D4F] hover:bg-[#FFF5F5]",
   ghost:
-    "bg-transparent text-[#C3110C] hover:bg-[#FDE2D3]",
+    "bg-transparent text-[#FF4D4F] hover:bg-[#FFF5F5]",
 };
 
 const sizeClasses = {

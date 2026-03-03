@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, QrCode, User } from "lucide-react";
-import api from "../../services/api";
+import {
+  getProfile,
+  updateProfile,
+  markAttendance,
+} from "../../services/profile";
 import {
   Card,
   CardHeader,
@@ -61,9 +65,12 @@ function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMarkingToday, setIsMarkingToday] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const waiterName =
-    profile?.name || localStorage.getItem("waiterName") || "Waiter";
+    profile?.fullName || profile?.name || localStorage.getItem("waiterName") || "Waiter";
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -71,8 +78,9 @@ function Profile() {
         setIsLoading(true);
         setError(null);
 
-        const response = await api.get("/waiter/profile");
-        setProfile(response.data || null);
+        const userData = await getProfile();
+        setProfile(userData);
+        setEditName(userData?.fullName || userData?.name || "");
       } catch (err) {
         setError("Failed to load profile. Please try again.");
       } finally {
@@ -82,6 +90,42 @@ function Profile() {
 
     fetchProfile();
   }, []);
+
+  const handleUpdateProfile = async () => {
+    if (!editName.trim()) {
+      toast({
+        title: "Invalid name",
+        description: "Name cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      await updateProfile({ fullName: editName.trim() });
+
+      setProfile((prev) =>
+        prev ? { ...prev, fullName: editName.trim() } : prev
+      );
+      localStorage.setItem("waiterName", editName.trim());
+      localStorage.setItem("userName", editName.trim());
+      setIsEditing(false);
+
+      toast({
+        title: "Profile updated",
+        description: "Your name has been updated successfully.",
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to update profile",
+        description: err?.response?.data?.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const completedOrdersCount = profile?.completedOrdersCount ?? 0;
   const attendanceDates = profile?.attendanceDates ?? [];
@@ -105,7 +149,7 @@ function Profile() {
 
     try {
       setIsMarkingToday(true);
-      await api.post("/waiter/attendance/mark-today");
+      await markAttendance();
 
       const todayIso = new Date().toISOString().slice(0, 10);
       setProfile((prev) =>
@@ -137,19 +181,67 @@ function Profile() {
   return (
     <div className="min-h-screen bg-white px-4 py-8 text-neutral-900">
       <div className="mx-auto w-full max-w-4xl space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#C3110C] text-white">
-            <User className="h-5 w-5" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FF4D4F] text-white">
+              <User className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+                {waiterName}
+              </h1>
+              <p className="text-sm text-neutral-500">
+                Waiter profile, performance and attendance.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-              {waiterName}
-            </h1>
-            <p className="text-sm text-neutral-500">
-              Waiter profile, performance and attendance.
-            </p>
-          </div>
+          <Button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            className="h-9"
+          >
+            Edit Name
+          </Button>
         </div>
+        {isEditing && (
+          <Card className="border border-neutral-200 bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold text-neutral-900">
+                Update Your Name
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 py-4">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm focus:border-[#FF4D4F] focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/20"
+                placeholder="Enter your full name"
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  onClick={handleUpdateProfile}
+                  disabled={isSaving}
+                  className="flex-1"
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditName(waiterName);
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {isLoading ? (
           <div className="space-y-4">
@@ -227,7 +319,7 @@ function Profile() {
             <Card className="border border-neutral-200 bg-white shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#C3110C]/10 text-[#C3110C]">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#FF4D4F]/10 text-[#FF4D4F]">
                     <CalendarDays className="h-4 w-4" />
                   </div>
                   <div>
@@ -268,7 +360,7 @@ function Profile() {
                         : "border-neutral-200 text-neutral-700";
 
                       const todayRing = day.isToday
-                        ? "ring-1 ring-offset-1 ring-[#C3110C]"
+                        ? "ring-1 ring-offset-1 ring-[#FF4D4F]"
                         : "";
 
                       return (

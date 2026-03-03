@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/services/api";
+import { loginWaiter } from "@/services/auth";
 import AuthCard from "../../components/auth/AuthCard"; 
 import AuthForm from "../../components/auth/AuthForm";
 
@@ -15,16 +15,22 @@ export default function WaiterLogin() {
     setError("");
 
     try {
-      const response = await api.post("/auth/login/waiter", { email, password });
-      console.log("Login successful:", response);
+      const data = await loginWaiter(email, password);
+      console.log("Login successful:", data);
 
-      const { accessToken, user } = response.data?.data ?? {};
+      const { accessToken, user } = data?.data ?? {};
 
       if (!accessToken || !user?.role) throw new Error("Invalid response from server");
 
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("authRole", user.role);
       localStorage.setItem("role", String(user.role).toLowerCase());
+      
+      // Store user IDs and identifiers
+      if (user?.id) localStorage.setItem("waiterId", user.id);
+      if (user?.restaurantId) localStorage.setItem("restaurantId", user.restaurantId);
+      if (user?.tenantId) localStorage.setItem("tenantId", user.tenantId);
+      
       const name = user?.fullName || user?.name || user?.username || "Waiter";
       localStorage.setItem("userName", name);
       // also set waiterName for navbar convenience

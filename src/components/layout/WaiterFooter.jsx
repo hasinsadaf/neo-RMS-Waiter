@@ -26,19 +26,28 @@ function WaiterFooter() {
   useEffect(() => {
     const fetchBranding = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/restaurant/settings", {
+        const restaurantId = localStorage.getItem("restaurantId");
+        const token = localStorage.getItem("authToken");
+        
+        if (!restaurantId) {
+          setRestaurantName("Restaurant Management");
+          setLogoLoading(false);
+          return;
+        }
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/restaurant/${restaurantId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) throw new Error("Failed to fetch settings");
         const data = await res.json();
+        const restaurantData = data?.data || data || {};
 
-        if (data?.logoUrl) {
-          setLogoUrl(data.logoUrl);
+        if (restaurantData?.logoUrl) {
+          setLogoUrl(restaurantData.logoUrl);
         }
 
         const nameFromApi =
-          data?.name || data?.restaurantName || data?.title;
+          restaurantData?.name || restaurantData?.restaurantName || restaurantData?.title;
         if (nameFromApi && typeof nameFromApi === "string") {
           setRestaurantName(nameFromApi);
         }
@@ -97,7 +106,7 @@ function WaiterFooter() {
           "Issue reported from waiter dashboard. Please follow up with this user.",
       };
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       await fetch("/api/restaurant/report-issue", {
         method: "POST",
         headers: {
@@ -129,7 +138,7 @@ function WaiterFooter() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               {/* Mini ring logo with same logic as navbar */}
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[#C3110C] bg-white shadow-sm overflow-hidden">
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[#FF4D4F] bg-white shadow-sm overflow-hidden">
                 {logoLoading ? (
                   <div className="h-full w-full animate-pulse bg-neutral-100 rounded-full" />
                 ) : logoUrl ? (
@@ -140,7 +149,7 @@ function WaiterFooter() {
                     onError={() => setLogoUrl(null)}
                   />
                 ) : (
-                  <span className="text-[7px] font-extrabold leading-tight tracking-tight text-[#C3110C] select-none text-center">
+                  <span className="text-[7px] font-extrabold leading-tight tracking-tight text-[#FF4D4F] select-none text-center">
                     neo
                     <br />
                     RMS
@@ -206,7 +215,7 @@ function WaiterFooter() {
               <button
                 type="button"
                 onClick={handleReportIssue}
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm hover:bg-neutral-50"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 bg-gradient-to-br from-[#FF4D4F] to-[#FF7F7F] text-white shadow-sm transform active:scale-95 active:opacity-80"
               >
                 <Mail className="h-3.5 w-3.5" />
                 <span>Report Issue</span>

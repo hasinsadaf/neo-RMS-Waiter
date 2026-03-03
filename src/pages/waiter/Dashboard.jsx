@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, List, CheckCircle2, Coffee } from "lucide-react";
-import api from "../../services/api";
+import { fetchOrders } from "../../services/order";
 
 import {
   Card,
@@ -14,7 +14,7 @@ import { Button } from "../../components/ui-waiter/button";
 function StatusPill({ label, value, tone }) {
   const tones = {
     neutral: "bg-neutral-50 text-neutral-800 border-neutral-200",
-    amber: "bg-[#FDE2D3] text-[#C3110C] border-[#FAD2BF]",
+    amber: "bg-[#FFF5F5] text-[#FF4D4F] border-[#FFD9D9]",
     green: "bg-emerald-50 text-emerald-800 border-emerald-200",
     blue: "bg-sky-50 text-sky-800 border-sky-200",
   };
@@ -43,10 +43,8 @@ function Dashboard() {
         setIsLoading(true);
         setError(null);
 
-        const response = await api.get(
-          "/orders?status=Pending,Preparing,Ready,Served"
-        );
-        setOrders(response.data || []);
+        const data = await fetchOrders("Pending,Preparing,Ready,Served");
+        setOrders(data || []);
       } catch (err) {
         setError("Failed to load dashboard data. Please try again.");
       } finally {
@@ -90,7 +88,7 @@ function Dashboard() {
         {/* Header */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#C3110C]/10 text-[#C3110C]">
+            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF4D4F]/10 text-[#FF4D4F]">
               <Coffee className="h-5 w-5" />
             </div>
             <div>
@@ -248,7 +246,7 @@ function Dashboard() {
                       key={order.id}
                       type="button"
                       onClick={() => navigate(`/waiter/billing/${order.id}`)}
-                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-neutral-50"
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-[#FFF5F5] transition-transform transform active:scale-95 active:opacity-80"
                     >
                       <div>
                         <p className="font-medium text-neutral-900">

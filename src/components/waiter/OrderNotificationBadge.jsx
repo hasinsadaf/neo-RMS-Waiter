@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
-import api from "../../services/api";
+import { fetchReadyOrders } from "../../services/order";
 import { useToast } from "../ui-waiter/use-toast";
 
 function normalizeOrders(data) {
@@ -19,12 +19,10 @@ export default function OrderNotificationBadge({ pollIntervalMs = 10000 }) {
   const previousIdsRef = useRef(new Set());
   const hasInitializedRef = useRef(false);
 
-  const fetchReadyOrders = async () => {
+  const loadReadyOrders = async () => {
     try {
-      const response = await api.get("/orders?status=Ready");
-      const orders = normalizeOrders(response.data);
-
-      setReadyOrders(orders);
+      const orders = await fetchReadyOrders();
+      setReadyOrders(normalizeOrders(orders));
 
       const currentIds = new Set(orders.map((o) => o.id));
       const previousIds = previousIdsRef.current;
@@ -54,9 +52,9 @@ export default function OrderNotificationBadge({ pollIntervalMs = 10000 }) {
   };
 
   useEffect(() => {
-    fetchReadyOrders();
+    loadReadyOrders();
 
-    const id = setInterval(fetchReadyOrders, pollIntervalMs);
+    const id = setInterval(loadReadyOrders, pollIntervalMs);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollIntervalMs]);
@@ -67,7 +65,7 @@ export default function OrderNotificationBadge({ pollIntervalMs = 10000 }) {
     <button
       type="button"
       onClick={() => navigate("/waiter/orders?status=Ready")}
-      className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#C3110C]/40 bg-white text-[#C3110C] shadow-sm hover:bg-[#FDE2D3] hover:text-[#E6501B] transition-colors"
+      className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#FF4D4F]/40 bg-white text-[#FF4D4F] shadow-sm hover:bg-[#FFF5F5] hover:text-[#FF7F7F] transition-colors transform active:scale-95 active:opacity-80"
       aria-label="Ready order notifications"
     >
       <Bell className="h-4 w-4" />

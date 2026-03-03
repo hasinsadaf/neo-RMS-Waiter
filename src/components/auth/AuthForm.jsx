@@ -47,7 +47,7 @@ export default function AuthForm({
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="pl-10 rounded-xl border-[#C3110C] focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1"
+              className="pl-10 rounded-xl border-[#FF4D4F] focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1"
               placeholder="John Doe"
             />
           </div>
@@ -69,7 +69,7 @@ export default function AuthForm({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="pl-10 rounded-xl border border-[#C3110C] focus-visible:ring-2 focus-visible:ring-[#E6501B] focus-visible:border-[#E6501B] focus-visible:ring-offset-1"
+            className="pl-10 rounded-xl border border-[#FF4D4F] focus-visible:ring-2 focus-visible:ring-[#FF7F7F] focus-visible:border-[#FF7F7F] focus-visible:ring-offset-1"
             placeholder="you@example.com"
           />
         </div>
@@ -91,7 +91,7 @@ export default function AuthForm({
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="pl-10 rounded-xl border border-[#C3110C] focus-visible:ring-2 focus-visible:ring-[#E6501B] focus-visible:border-[#E6501B] focus-visible:ring-offset-1"
+              className="pl-10 rounded-xl border border-[#FF4D4F] focus-visible:ring-2 focus-visible:ring-[#FF7F7F] focus-visible:border-[#FF7F7F] focus-visible:ring-offset-1"
               placeholder="+1 555 123 4567"
             />
           </div>
@@ -113,7 +113,7 @@ export default function AuthForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pl-10 rounded-xl border border-[#C3110C] focus-visible:ring-2 focus-visible:ring-[#E6501B] focus-visible:border-[#E6501B] focus-visible:ring-offset-1"
+            className="pl-10 rounded-xl border border-[#FF4D4F] focus-visible:ring-2 focus-visible:ring-[#FF7F7F] focus-visible:border-[#FF7F7F] focus-visible:ring-offset-1"
             placeholder="••••••••"
           />
         </div>
@@ -128,7 +128,7 @@ export default function AuthForm({
       <Button
         type="submit"
         disabled={loading}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#C3110C] text-white hover:bg-[#E6501B] disabled:cursor-not-allowed disabled:opacity-70"
+        className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#FF4D4F] text-white hover:bg-[#FF7F7F] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         <span>{submitLabel}</span>

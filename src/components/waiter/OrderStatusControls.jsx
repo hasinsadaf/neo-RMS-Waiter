@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
-import api from "../../services/api";
+import { updateOrderStatus } from "../../services/order";
 import { Button } from "../ui-waiter/button";
 import { useToast } from "../ui-waiter/use-toast";
 
@@ -30,9 +30,7 @@ function OrderStatusControls({ orderId, currentStatus, onStatusUpdated }) {
     try {
       setIsUpdating(true);
 
-      await api.patch(`/orders/${orderId}/status`, {
-        status,
-      });
+      await updateOrderStatus(orderId, status);
 
       toast({
         title: "Status Updated",
@@ -56,7 +54,7 @@ function OrderStatusControls({ orderId, currentStatus, onStatusUpdated }) {
   return (
     <div className="flex items-center gap-2">
       <select
-        className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-xs font-medium text-neutral-800 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+        className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-xs font-medium text-neutral-800 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
         value={status}
         onChange={(e) => setStatus(e.target.value)}
         disabled={isUpdating}
@@ -72,7 +70,7 @@ function OrderStatusControls({ orderId, currentStatus, onStatusUpdated }) {
         type="button"
         size="sm"
         variant="outline"
-        className="gap-1 rounded-full border-neutral-300 text-neutral-800 hover:border-[#C3110C] hover:text-white hover:bg-[#C3110C]"
+        className="gap-1 rounded-full border-neutral-300 text-neutral-800 hover:border-[#FF4D4F] hover:text-white hover:bg-[#FF4D4F]"
         onClick={handleUpdateStatus}
         disabled={isUpdating || !orderId}
       >

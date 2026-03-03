@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, Plus, Trash2 } from "lucide-react";
-import api from "../../services/api";
+import { createOrder } from "../../services/order";
 
 import {
   Card,
@@ -85,8 +85,7 @@ function CreateOrder() {
         total,
       };
 
-      const response = await api.post("/orders", payload);
-      const createdOrder = response?.data || payload;
+      const createdOrder = await createOrder(payload);
 
       toast({
         title: "Order Created Successfully",
@@ -112,7 +111,7 @@ function CreateOrder() {
       <Card className="w-full max-w-4xl rounded-xl border border-neutral-200 bg-white shadow-xl">
         <CardHeader className="border-b border-neutral-200 pb-4">
           <div className="flex items-center gap-2">
-            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#C3110C]/10 text-[#C3110C]">
+            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF4D4F]/10 text-[#FF4D4F]">
               <ClipboardList className="h-5 w-5" />
             </div>
             <CardTitle className="text-2xl font-semibold tracking-tight text-neutral-900">
@@ -137,7 +136,7 @@ function CreateOrder() {
                   min={1}
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
-                  className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                  className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                   required
                 />
               </div>
@@ -154,7 +153,7 @@ function CreateOrder() {
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                  className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                   placeholder="John Doe"
                 />
               </div>
@@ -170,7 +169,7 @@ function CreateOrder() {
                   variant="outline"
                   size="sm"
                   onClick={handleAddItem}
-                  className="gap-1 rounded-full border-[#C3110C] bg-[#C3110C] text-white hover:bg-[#E6501B] hover:border-[#E6501B]"
+                  className="gap-1 rounded-full border-[#FF4D4F] bg-[#FF4D4F] text-white hover:bg-[#FF7F7F] hover:border-[#FF7F7F]"
                 >
                   <Plus className="h-4 w-4" />
                   <span className="text-xs font-medium">Add Item</span>
@@ -197,7 +196,7 @@ function CreateOrder() {
                         onChange={(e) =>
                           handleItemChange(index, "name", e.target.value)
                         }
-                    className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                    className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                         placeholder="Margherita Pizza"
                         required
                       />
@@ -219,7 +218,7 @@ function CreateOrder() {
                           onChange={(e) =>
                             handleItemChange(index, "quantity", e.target.value)
                           }
-                          className="bg-white border-neutral-300 text-neutral-900 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                          className="bg-white border-neutral-300 text-neutral-900 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                           required
                         />
                       </div>
@@ -240,7 +239,7 @@ function CreateOrder() {
                           onChange={(e) =>
                             handleItemChange(index, "price", e.target.value)
                           }
-                          className="bg-white border-neutral-300 text-neutral-900 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                          className="bg-white border-neutral-300 text-neutral-900 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                           required
                         />
                       </div>

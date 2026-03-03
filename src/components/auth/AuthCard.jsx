@@ -13,8 +13,8 @@ export default function AuthCard({ title, description, children }) {
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 md:flex-row md:items-stretch">
         {/* Left: Large neoRMS ring logo */}
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-3">
-          <div className="flex h-40 w-40 items-center justify-center rounded-full border-4 border-[#C3110C] bg-white shadow-lg md:h-52 md:w-52">
-            <span className="select-none text-center text-xl font-extrabold leading-tight tracking-tight text-[#C3110C] md:text-2xl">
+          <div className="flex h-40 w-40 items-center justify-center rounded-full border-4 border-[#FF4D4F] bg-white shadow-lg md:h-52 md:w-52">
+            <span className="select-none text-center text-xl font-extrabold leading-tight tracking-tight text-[#FF4D4F] md:text-2xl">
               neo
               <br />
               RMS
@@ -27,7 +27,7 @@ export default function AuthCard({ title, description, children }) {
 
         {/* Right: Auth form card */}
         <div className="w-full max-w-md flex-1">
-          <Card className="rounded-2xl border border-[#C3110C] bg-white shadow-lg">
+          <Card className="rounded-2xl border border-[#FF4D4F] bg-white shadow-lg">
             <CardHeader className="space-y-1 pb-3">
               <CardTitle className="text-2xl font-semibold tracking-tight text-neutral-900">
                 {title}

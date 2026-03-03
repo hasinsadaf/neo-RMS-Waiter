@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CreditCard } from "lucide-react";
-import api from "../../services/api";
+import { getOrder, payOrder } from "../../services/order";
 
 import {
   Card,
@@ -47,8 +47,8 @@ function Billing() {
       setIsLoading(true);
       setError(null);
 
-      const response = await api.get(`/orders/${id}`);
-      setOrder(response.data || null);
+      const data = await getOrder(id);
+      setOrder(data || null);
     } catch (err) {
       setError("Failed to load order. Please try again.");
     } finally {
@@ -89,7 +89,7 @@ function Billing() {
     try {
       setIsPaying(true);
 
-      await api.post(`/orders/${order.id}/pay`, {
+      await payOrder(order.id, {
         paymentMethod,
         paidAmount: paid,
       });
@@ -125,7 +125,7 @@ function Billing() {
           <CardHeader className="border-b border-neutral-200 pb-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#C3110C]/10 text-[#C3110C]">
+                <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF4D4F]/10 text-[#FF4D4F]">
                   <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
@@ -306,7 +306,7 @@ function Billing() {
                         id="paymentMethod"
                         value={paymentMethod}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                        className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                         disabled={isPaying}
                       >
                         <option value="Cash">Cash</option>
@@ -329,7 +329,7 @@ function Billing() {
                         step="0.01"
                         value={paidAmount}
                         onChange={(e) => setPaidAmount(e.target.value)}
-                        className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#C3110C] focus-visible:border-[#C3110C]"
+                        className="bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F]"
                         placeholder="0.00"
                         disabled={isPaying}
                       />
