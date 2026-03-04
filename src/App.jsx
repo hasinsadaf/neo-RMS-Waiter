@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import Dashboard from "./pages/waiter/Dashboard.jsx";
 import CreateOrder from "./pages/waiter/CreateOrder.jsx";
 import ActiveOrders from "./pages/waiter/ActiveOrders.jsx";
@@ -7,9 +7,16 @@ import OrderDetails from "./pages/waiter/OrderDetails.jsx";
 import OrderConfirmation from "./pages/waiter/OrderConfirmation.jsx";
 import Profile from "./pages/waiter/Profile.jsx";
 import WaiterLogin from "./pages/auth/Login.jsx";
-import RequireWaiterAuth from "./components/routing/RequireWaiterAuth.jsx";
 import WaiterShell from "./components/layout/WaiterShell.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+
+function ProtectedRoute() {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  return isAuthenticated
+    ? <Outlet />
+    : <Navigate to="/waiter/login" state={{ from: location }} replace />;
+}
 
 function HomeRedirect() {
   const { isAuthenticated } = useAuth();
@@ -27,7 +34,7 @@ function App() {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/waiter/login" element={<WaiterLogin />} />
 
-      <Route element={<RequireWaiterAuth />}>
+      <Route element={<ProtectedRoute />}>
         <Route element={<WaiterShell />}>
           <Route path="/waiter/dashboard" element={<Dashboard />} />
           <Route path="/waiter/create-order" element={<CreateOrder />} />
