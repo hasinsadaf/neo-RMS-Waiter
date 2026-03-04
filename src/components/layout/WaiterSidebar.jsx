@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -11,6 +11,7 @@ import {
   Calendar,
   Clock,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { Button } from "../ui-waiter/button.jsx";
 import {
   Sheet,
@@ -49,19 +50,17 @@ const navItems = [
 function WaiterSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState(null);
   const [logoLoading, setLogoLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState("Restaurant Management");
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-  const waiterName = useMemo(
-    () =>
-      localStorage.getItem("waiterName") ||
-      localStorage.getItem("userName") ||
-      "Waiter",
-    []
-  );
+  const waiterName =
+    user?.fullName || user?.name || user?.username ||
+    localStorage.getItem("waiterName") || localStorage.getItem("userName") ||
+    "Waiter";
   const avatarLetter = waiterName.charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -120,13 +119,8 @@ function WaiterSidebar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("authRole");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("waiterName");
+    logout();
     navigate("/waiter/login", { replace: true });
-    window.location.reload();
   };
 
   // FIX 1: "group" is now inside linkClasses so it's always on the same element.

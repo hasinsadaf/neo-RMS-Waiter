@@ -9,14 +9,13 @@ import Profile from "./pages/waiter/Profile.jsx";
 import WaiterLogin from "./pages/auth/Login.jsx";
 import RequireWaiterAuth from "./components/routing/RequireWaiterAuth.jsx";
 import WaiterShell from "./components/layout/WaiterShell.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 function HomeRedirect() {
-  const token = localStorage.getItem("authToken");
-  const role = localStorage.getItem("authRole");
-  const isWaiter = !role || role === "WAITER";
+  const { isAuthenticated } = useAuth();
   return (
     <Navigate
-      to={token && isWaiter ? "/waiter/dashboard" : "/waiter/login"}
+      to={isAuthenticated ? "/waiter/dashboard" : "/waiter/login"}
       replace
     />
   );
