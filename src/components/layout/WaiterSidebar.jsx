@@ -80,8 +80,22 @@ function WaiterSidebar() {
           return;
         }
 
+        // Use cached restaurant data to avoid a network call on every mount
+        const cached = localStorage.getItem("restaurantData");
+        if (cached) {
+          const data = JSON.parse(cached);
+          if (mounted) {
+            if (data?.logoUrl) setLogoUrl(data.logoUrl);
+            const name = data?.name || data?.restaurantName || data?.title;
+            if (name) setRestaurantName(name);
+            setLogoLoading(false);
+          }
+          return;
+        }
+
         const data = await getRestaurant(restaurantId);
         if (!mounted) return;
+        localStorage.setItem("restaurantData", JSON.stringify(data));
         if (data?.logoUrl) setLogoUrl(data.logoUrl);
         const nameFromApi =
           data?.name || data?.restaurantName || data?.title;

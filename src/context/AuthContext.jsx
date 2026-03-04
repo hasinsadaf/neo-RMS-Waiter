@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import api from "../services/api";
+import { getRestaurant } from "../services/order";
 
 const AuthContext = createContext(null);
 
@@ -52,6 +53,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("tenantId");
+    localStorage.removeItem("restaurantData");
     saveUserToCache(null);
     setToken(null);
     setTenantId(null);
@@ -90,24 +92,36 @@ export function AuthProvider({ children }) {
     localStorage.setItem("authToken", accessToken);
     setToken(accessToken);
 
+    let parsed;
     try {
       const res = await api.get("/user/me");
-      const parsed = parseUser(res.data?.data);
-      if (parsed?.tenantId) {
-        localStorage.setItem("tenantId", parsed.tenantId);
-        setTenantId(parsed.tenantId);
-      }
-      saveUserToCache(parsed);
-      setUser(parsed);
+      parsed = parseUser(res.data?.data);
     } catch {
       // fallback: use data already returned from the login response
-      const parsed = parseUser(fallbackUserData);
-      if (parsed?.tenantId) {
-        localStorage.setItem("tenantId", parsed.tenantId);
-        setTenantId(parsed.tenantId);
+      parsed = parseUser(fallbackUserData);
+    }
+
+    if (parsed?.tenantId) {
+      localStorage.setItem("tenantId", parsed.tenantId);
+      setTenantId(parsed.tenantId);
+    }
+    if (parsed?.restaurantId) {
+      localStorage.setItem("restaurantId", parsed.restaurantId);
+    }
+    saveUserToCache(parsed);
+    setUser(parsed);
+
+    // Fetch and cache restaurant data immediately after login so sidebar/footer
+    // never need to make this request themselves.
+    if (parsed?.restaurantId) {
+      try {
+        const restaurantData = await getRestaurant(parsed.restaurantId);
+        if (restaurantData) {
+          localStorage.setItem("restaurantData", JSON.stringify(restaurantData));
+        }
+      } catch {
+        // non-critical — sidebar will handle missing cache gracefully
       }
-      saveUserToCache(parsed);
-      setUser(parsed);
     }
   };
 

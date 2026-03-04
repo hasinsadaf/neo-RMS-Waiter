@@ -24,41 +24,20 @@ function WaiterFooter() {
   }, []);
 
   useEffect(() => {
-    const fetchBranding = async () => {
-      try {
-        const restaurantId = localStorage.getItem("restaurantId");
-        const token = localStorage.getItem("authToken");
-        
-        if (!restaurantId) {
-          setRestaurantName("Restaurant Management");
-          setLogoLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/restaurant/${restaurantId}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (!res.ok) throw new Error("Failed to fetch settings");
-        const data = await res.json();
-        const restaurantData = data?.data || data || {};
-
-        if (restaurantData?.logoUrl) {
-          setLogoUrl(restaurantData.logoUrl);
-        }
-
-        const nameFromApi =
-          restaurantData?.name || restaurantData?.restaurantName || restaurantData?.title;
-        if (nameFromApi && typeof nameFromApi === "string") {
-          setRestaurantName(nameFromApi);
-        }
-      } catch {
-        setRestaurantName("Restaurant Management");
-      } finally {
-        setLogoLoading(false);
+    // Restaurant data is already cached in localStorage by WaiterSidebar — no API call needed.
+    try {
+      const cached = localStorage.getItem("restaurantData");
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (data?.logoUrl) setLogoUrl(data.logoUrl);
+        const name = data?.name || data?.restaurantName || data?.title;
+        if (name) setRestaurantName(name);
       }
-    };
-
-    fetchBranding();
+    } catch {
+      // keep defaults
+    } finally {
+      setLogoLoading(false);
+    }
   }, []);
 
   const roleConfig = {
