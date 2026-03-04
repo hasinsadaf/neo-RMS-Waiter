@@ -8,6 +8,8 @@ import {
   Menu,
   User,
   LogOut,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { Button } from "../ui-waiter/button.jsx";
 import {
@@ -51,6 +53,7 @@ function WaiterSidebar() {
   const [logoUrl, setLogoUrl] = useState(null);
   const [logoLoading, setLogoLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState("Restaurant Management");
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   const waiterName = useMemo(
     () =>
@@ -60,6 +63,13 @@ function WaiterSidebar() {
     []
   );
   const avatarLetter = waiterName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -157,6 +167,30 @@ function WaiterSidebar() {
             </p>
             {/* off-white underline under header */}
             <div className="w-full h-px bg-[#FFF5F5] mt-2" />
+          </div>
+        </div>
+
+        {/* Date and Time Display */}
+        <div className="px-4 py-3 border-b border-[#FF7F7F]/40 bg-[#FF6B6B] space-y-2">
+          <div className="flex items-center gap-2 text-white/90">
+            <Calendar className="h-4 w-4" />
+            <span className="text-xs font-medium">
+              {currentDateTime.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-white/90">
+            <Clock className="h-4 w-4" />
+            <span className="text-xs font-medium">
+              {currentDateTime.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </span>
           </div>
         </div>
         <nav className="flex-1 flex flex-col mt-4">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { UtensilsCrossed } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -20,6 +21,15 @@ export default function AuthCard({ title, description, children }) {
               RMS
             </span>
           </div>
+          
+          {/* Waiter Portal Icon */}
+          <div className="flex items-center gap-2 mt-2">
+            <div className="h-10 w-10 flex items-center justify-center rounded-full bg-[#FF4D4F]/10 text-[#FF4D4F]">
+              <UtensilsCrossed className="h-5 w-5" />
+            </div>
+            <span className="text-sm font-semibold text-[#FF4D4F]">Waiter Portal</span>
+          </div>
+          
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-neutral-500 text-center">
             Restaurant Management System
           </p>

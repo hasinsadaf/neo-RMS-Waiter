@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
-import { updateOrderStatus } from "../../services/order";
+import { updateOrderStatus, ORDER_STATUSES } from "../../services/order";
 import { Button } from "../ui-waiter/button";
 import { useToast } from "../ui-waiter/use-toast";
 
-const STATUS_OPTIONS = ["Pending", "Preparing", "Ready", "Served"];
+const STATUS_OPTIONS = ORDER_STATUSES; // full list; UI may restrict according to current status later
 
 function OrderStatusControls({ orderId, currentStatus, onStatusUpdated }) {
   const { toast } = useToast();

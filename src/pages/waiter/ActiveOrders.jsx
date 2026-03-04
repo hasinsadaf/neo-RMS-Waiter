@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Eye } from "lucide-react";
-import { fetchOrders } from "@/services/order";
+import { Eye, Clock } from "lucide-react";
+import { fetchOrders, fetchRestaurantOrders } from "@/services/order";
 
 import {
   Card,
@@ -10,8 +10,7 @@ import {
   CardContent,
 } from "../../components/ui-waiter/card";
 import { Input } from "../../components/ui-waiter/input";
-import { Button } from "../../components/ui-waiter/button";
-import OrderStatusControls from "../../components/waiter/OrderStatusControls";
+
 
 function StatusBadge({ status }) {
   const baseClasses =
@@ -51,10 +50,10 @@ function SkeletonRow() {
         <div className="h-4 w-20 rounded bg-neutral-200" />
       </td>
       <td className="px-4 py-3">
-        <div className="h-6 w-24 rounded-full bg-neutral-200" />
+        <div className="h-4 w-24 rounded bg-neutral-200" />
       </td>
       <td className="px-4 py-3">
-        <div className="h-8 w-24 rounded-full bg-neutral-200" />
+        <div className="h-6 w-24 rounded-full bg-neutral-200" />
       </td>
     </tr>
   );
@@ -66,7 +65,7 @@ function ActiveOrders() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTable, setSearchTable] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const statusParam = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -78,31 +77,31 @@ function ActiveOrders() {
       setIsLoading(true);
       setError(null);
 
-      const statuses = statusParam?.trim()
-        ? statusParam.trim()
-        : "Pending,Preparing,Ready";
-
-      const data = await fetchOrders(statuses);
+      const restaurantId = localStorage.getItem("restaurantId");
+      console.log("[ActiveOrders] fetching all orders, restaurantId", restaurantId);
+      const data = restaurantId
+        ? await fetchRestaurantOrders(restaurantId)
+        : await fetchOrders();
       setOrders(data || []);
     } catch (err) {
       setError("Failed to load active orders. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, [statusParam]);
+  }, []);
 
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
 
   const filteredOrders = useMemo(() => {
-    if (!searchTable.trim()) return orders;
+    if (!searchTerm.trim()) return orders;
     return orders.filter((order) =>
-      String(order.tableNumber || "")
+      String(order.type || order.orderType || "")
         .toLowerCase()
-        .includes(searchTable.trim().toLowerCase())
+        .includes(searchTerm.trim().toLowerCase())
     );
-  }, [orders, searchTable]);
+  }, [orders, searchTerm]);
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 text-neutral-900">
@@ -116,9 +115,9 @@ function ActiveOrders() {
               <div className="flex items-center gap-3">
                 <Input
                   type="text"
-                  placeholder="Search by table number..."
-                  value={searchTable}
-                  onChange={(e) => setSearchTable(e.target.value)}
+                  placeholder="Search by order type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full bg-white border-neutral-300 text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-[#FF4D4F] focus-visible:border-[#FF4D4F] md:w-64"
                 />
               </div>
@@ -131,10 +130,10 @@ function ActiveOrders() {
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                     <th className="px-4 py-3">Order ID</th>
-                    <th className="px-4 py-3">Table</th>
+                    <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3">Total</th>
+                    <th className="px-4 py-3">Created At</th>
                     <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -146,43 +145,33 @@ function ActiveOrders() {
                     ? filteredOrders.map((order) => (
                         <tr
                           key={order.id}
-                          className="border-b border-neutral-100 hover:bg-neutral-50/60"
+                          className="border-b border-neutral-100 hover:bg-neutral-50/60 cursor-pointer"
+                          onClick={() => navigate(`/waiter/orders/${order.id}`)}
                         >
                           <td className="px-4 py-3 text-sm font-medium text-neutral-900">
                             #{order.id}
                           </td>
                           <td className="px-4 py-3 text-sm text-neutral-700">
-                            {order.tableNumber}
+                            {order.type || order.orderType || "-"}
                           </td>
                           <td className="px-4 py-3 text-sm text-neutral-900">
-                            {Number(order.total || 0).toFixed(2)}
+                            {Number(order.totalPrice || 0).toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-600">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-neutral-400" />
+                              {order.createdAt
+                                ? new Date(order.createdAt).toLocaleTimeString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "-"}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <StatusBadge status={order.status} />
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="gap-1 rounded-full border-neutral-300 text-neutral-800 hover:border-[#FF4D4F] hover:text-white hover:bg-[#FF4D4F]"
-                                onClick={() =>
-                                  navigate(`/waiter/billing/${order.id}`)
-                                }
-                              >
-                                <Eye className="h-4 w-4" />
-                                <span className="text-xs font-medium">
-                                  View / Update
-                                </span>
-                              </Button>
-
-                              <OrderStatusControls
-                                orderId={order.id}
-                                currentStatus={order.status}
-                                onStatusUpdated={fetchOrders}
-                              />
-                            </div>
                           </td>
                         </tr>
                       ))
