@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
     let cancelled = false;
 
     api
-      .get("/user/getme")
+      .get("/user/me")
       .then((res) => {
         if (cancelled) return;
         const parsed = parseUser(res.data?.data);

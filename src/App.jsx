@@ -9,13 +9,16 @@ import Profile from "./pages/waiter/Profile.jsx";
 import WaiterLogin from "./pages/auth/Login.jsx";
 import WaiterShell from "./components/layout/WaiterShell.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { SocketProvider } from "./context/SocketContext.tsx";
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-  return isAuthenticated
-    ? <Outlet />
-    : <Navigate to="/waiter/login" state={{ from: location }} replace />;
+  return isAuthenticated ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/waiter/login" state={{ from: location }} replace />
+  );
 }
 
 function HomeRedirect() {
@@ -30,27 +33,29 @@ function HomeRedirect() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomeRedirect />} />
-      <Route path="/waiter/login" element={<WaiterLogin />} />
+    <SocketProvider>
+      <Routes>
+        <Route path="/" element={<HomeRedirect />} />
+        <Route path="/waiter/login" element={<WaiterLogin />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<WaiterShell />}>
-          <Route path="/waiter/dashboard" element={<Dashboard />} />
-          <Route path="/waiter/create-order" element={<CreateOrder />} />
-          <Route path="/waiter/orders" element={<ActiveOrders />} />
-          <Route path="/waiter/billing/:id" element={<Billing />} />
-          <Route path="/waiter/orders/:id" element={<OrderDetails />} />
-          <Route
-            path="/waiter/order-confirmation"
-            element={<OrderConfirmation />}
-          />
-          <Route path="/waiter/profile" element={<Profile />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<WaiterShell />}>
+            <Route path="/waiter/dashboard" element={<Dashboard />} />
+            <Route path="/waiter/create-order" element={<CreateOrder />} />
+            <Route path="/waiter/orders" element={<ActiveOrders />} />
+            <Route path="/waiter/billing/:id" element={<Billing />} />
+            <Route path="/waiter/orders/:id" element={<OrderDetails />} />
+            <Route
+              path="/waiter/order-confirmation"
+              element={<OrderConfirmation />}
+            />
+            <Route path="/waiter/profile" element={<Profile />} />
+          </Route>
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </SocketProvider>
   );
 }
 
