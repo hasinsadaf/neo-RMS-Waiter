@@ -1,4 +1,5 @@
 import axios from "axios";
+import { BACKEND_URL } from "../constant";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -7,7 +8,7 @@ const api = axios.create({
 
 // Log API initialization
 console.log("%c[API Init]", "color: green; font-weight: bold", {
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: BACKEND_URL,
   env: import.meta.env.MODE,
   authTokenExists: !!localStorage.getItem("authToken"),
   tenantId: localStorage.getItem("tenantId"),
@@ -58,10 +59,7 @@ api.interceptors.response.use(
       message: error.message,
     });
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -75,7 +73,8 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
+
