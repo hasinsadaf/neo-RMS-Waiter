@@ -11,50 +11,24 @@ export const ORDER_STATUSES = [
 ];
 
 /**
- * Retrieve orders. If `restaurantId` is provided (or available in localStorage)
- * uses the `/order/restaurant-orders/{restaurantId}` endpoint; otherwise
- * falls back to the generic `/orders` path.
- *
- * `statuses` may be a string (comma separated) or an array.
- * When omitted, returns all orders for the target endpoint.
+ * Fetch orders for the current restaurant.
+ * Reads `restaurantId` directly from localStorage.
+ * `statuses` is an optional array — when omitted, returns all statuses.
+ * Sends repeated query params: ?status=PENDING&status=READY&...
  */
-export async function fetchOrders(statuses, restaurantId) {
-  const rid =
-    restaurantId || localStorage.getItem("restaurantId") || null;
-  let path;
-  if (rid) {
-    path = `/order/restaurant-orders/${rid}`; // corrected spelling
-  } else {
-    path = "/orders";
+export async function fetchRestaurantOrders(statuses) {
+  const restaurantId = localStorage.getItem("restaurantId");
+  if (!restaurantId) throw new Error("No restaurantId found in localStorage");
+
+  const params = new URLSearchParams();
+  if (Array.isArray(statuses) && statuses.length > 0) {
+    statuses.forEach((s) => params.append("status", s.trim().toUpperCase()));
   }
 
-  // debug: report how statuses/restaurantId resolved
-  console.log("[order service] fetchOrders called", {
-    inputStatuses: statuses,
-    restaurantId: rid,
-    computedPath: path,
-    willAddStatusQuery: !!statuses,
-  });
-
-  if (statuses) {
-    // backend expects all status values in uppercase
-    let list;
-    if (Array.isArray(statuses)) {
-      list = statuses;
-    } else {
-      // split comma-separated string if necessary
-      list = statuses.split(",");
-    }
-    const upper = list
-      .map((s) => String(s).trim().toUpperCase())
-      .filter((s) => s.length)
-      .join(",");
-    
-    path += `?status=${encodeURIComponent(upper)}`;
-  }
+  const query = params.toString();
+  const path = `/order/restaurant-orders/${restaurantId}${query ? `?${query}` : ""}`;
 
   const res = await api.get(path);
-  // some endpoints wrap the list in `data` property, sometimes not
   return res.data?.data || res.data || [];
 }
 
@@ -80,32 +54,12 @@ export async function updateOrderStatus(orderId, status) {
 }
 
 export async function fetchReadyOrders() {
-  // convenience wrapper that passes the restaurant id automatically
-  return fetchOrders("READY");
-}
-
-// convenience wrapper in case caller wants explicit restaurant-order endpoint
-// this function simply delegates to `fetchOrders` and optionally accepts a
-// status filter.
-export async function fetchRestaurantOrders(restaurantId, statuses) {
-  return fetchOrders(statuses, restaurantId);
-}
-
-// a simpler helper when you only need to GET all orders for a restaurant
-// (no status query). the request will automatically include the auth token
-// and tenantid header via the shared axios instance.
-export async function getRestaurantOrders(restaurantId) {
-  const rid = restaurantId || localStorage.getItem("restaurantId");
-  if (!rid) {
-    throw new Error("restaurantId is required to fetch restaurant orders");
-  }
-  const res = await api.get(`/order/restaurant-orders/${rid}`);
-  return res.data?.data || res.data || [];
+  return fetchRestaurantOrders(["READY"]);
 }
 
 // helper for sidebar logo/name fetch
 export async function getRestaurant(restaurantId) {
   if (!restaurantId) return null;
-  const res = await api.get(`/restaurant/${restaurantId}`);
+  const res = await api.get(`/restaurant/${restaurantId}?includeMenu=false`);
   return res.data?.data || res.data || null;
 }

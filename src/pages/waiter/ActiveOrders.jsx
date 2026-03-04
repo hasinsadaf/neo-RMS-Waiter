@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Eye, Clock } from "lucide-react";
-import { fetchOrders, fetchRestaurantOrders } from "@/services/order";
+import { fetchRestaurantOrders } from "@/services/order";
 
 import {
   Card,
@@ -77,11 +77,7 @@ function ActiveOrders() {
       setIsLoading(true);
       setError(null);
 
-      const restaurantId = localStorage.getItem("restaurantId");
-      console.log("[ActiveOrders] fetching all orders, restaurantId", restaurantId);
-      const data = restaurantId
-        ? await fetchRestaurantOrders(restaurantId)
-        : await fetchOrders();
+      const data = await fetchRestaurantOrders();
       setOrders(data || []);
     } catch (err) {
       setError("Failed to load active orders. Please try again.");

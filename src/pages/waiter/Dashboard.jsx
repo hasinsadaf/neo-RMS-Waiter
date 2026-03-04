@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, List, CheckCircle2, Coffee, Calendar, Clock } from "lucide-react";
-import { fetchOrders, fetchRestaurantOrders } from "../../services/order";
+import { fetchRestaurantOrders } from "../../services/order";
 
 import {
   Card,
@@ -43,10 +43,10 @@ function Dashboard() {
         setIsLoading(true);
         setError(null);
 
-        const restaurantId = localStorage.getItem("restaurantId");
-        const data = restaurantId
-          ? await fetchRestaurantOrders(restaurantId)
-          : await fetchOrders();
+        // Only fetch active statuses — no need to load DELIVERED/CANCELED orders
+        // for the dashboard summary.
+        const ACTIVE_STATUSES = ["PENDING", "CONFIRMED", "PREPARING", "READY"];
+        const data = await fetchRestaurantOrders(ACTIVE_STATUSES);
         setOrders(data || []);
       } catch (err) {
         setError("Failed to load dashboard data. Please try again.");

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchOrders } from "../../services/order"; // adjust path if needed
+import { fetchRestaurantOrders } from "../../services/order";
 
 const Billing = () => {
   const [orders, setOrders] = useState([]);
@@ -11,18 +11,8 @@ const Billing = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchOrders();
-
-      // ✅ Handle both array and wrapped API response
-      const allOrders = Array.isArray(response)
-        ? response
-        : response?.data || [];
-
-      // ✅ Filter only DELIVERED (case-safe)
-      const deliveredOrders = allOrders.filter(
-        (order) => order.status?.toUpperCase() === "DELIVERED"
-      );
-
+      // Fetch only DELIVERED orders directly from the server
+      const deliveredOrders = await fetchRestaurantOrders(["DELIVERED"]);
       setOrders(deliveredOrders);
     } catch (err) {
       console.error("[Billing] fetch orders error:", err);
