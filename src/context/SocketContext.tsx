@@ -72,6 +72,31 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       alert("Order Placed");
     });
 
+    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_EVENT, (data) => {
+      console.log("[Socket] ORDER_CANCELLED_EVENT data:", data);
+      alert("Order Cancelled");
+    });
+
+    s.on(WaiterSocketEventEnum.ORDER_UPDATED_EVENT, (data) => {
+      console.log("[Socket] ORDER_UPDATED_EVENT data:", data);
+      alert("Order Updated");
+    });
+
+    s.on(WaiterSocketEventEnum.ORDER_READY_EVENT, (data) => {
+      console.log("[Socket] ORDER_READY_EVENT data:", data);
+      alert("Order Ready");
+    });
+
+    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT, (data) => {
+      console.log("[Socket] ORDER_CANCELLED_BY_CHEF_EVENT data:", data);
+      alert("Order Cancelled by Chef");
+    });
+
+    s.on(WaiterSocketEventEnum.SOCKET_ERROR_EVENT, (data) => {
+      console.error("[Socket] SOCKET_ERROR_EVENT data:", data);
+      alert("Socket Error");
+    });
+
     return () => {
       s.disconnect();
       socketRef.current = null;
