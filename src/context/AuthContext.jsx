@@ -22,24 +22,44 @@ function parseUser(raw) {
   };
 }
 
+function loadCachedUser() {
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveUserToCache(user) {
+  if (user) {
+    localStorage.setItem("user", JSON.stringify(user));
+  } else {
+    localStorage.removeItem("user");
+  }
+}
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("authToken"));
   const [tenantId, setTenantId] = useState(() =>
     localStorage.getItem("tenantId"),
   );
-  const [user, setUser] = useState(null);
+  // Hydrate user from localStorage immediately — no loading flicker on refresh
+  const [user, setUser] = useState(() => loadCachedUser());
 
   const isAuthenticated = Boolean(token);
 
   const logout = useCallback(() => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("tenantId");
+    saveUserToCache(null);
     setToken(null);
     setTenantId(null);
     setUser(null);
   }, []);
 
-  // On mount, if a token already exists (page refresh), fetch the current user
+  // On mount, silently revalidate the token and refresh user data in the background.
+  // The cached user is already set above, so the UI renders instantly.
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
@@ -53,9 +73,11 @@ export function AuthProvider({ children }) {
           localStorage.setItem("tenantId", parsed.tenantId);
           setTenantId(parsed.tenantId);
         }
+        saveUserToCache(parsed);
         setUser(parsed);
       })
       .catch(() => {
+        // Token is invalid/expired — force logout
         if (!cancelled) logout();
       });
 
@@ -75,6 +97,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem("tenantId", parsed.tenantId);
         setTenantId(parsed.tenantId);
       }
+      saveUserToCache(parsed);
       setUser(parsed);
     } catch {
       // fallback: use data already returned from the login response
@@ -83,6 +106,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem("tenantId", parsed.tenantId);
         setTenantId(parsed.tenantId);
       }
+      saveUserToCache(parsed);
       setUser(parsed);
     }
   };
