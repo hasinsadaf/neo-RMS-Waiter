@@ -41,7 +41,7 @@ const navItems = [
   },
   {
     label: "Billing",
-    to: "/waiter/orders?status=Ready",
+    to: "/waiter/billing",
     icon: CreditCard,
   },
 ];

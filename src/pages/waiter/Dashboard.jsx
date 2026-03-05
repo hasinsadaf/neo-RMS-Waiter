@@ -10,6 +10,7 @@ import {
   CardContent,
 } from "../../components/ui-waiter/card";
 import { Button } from "../../components/ui-waiter/button";
+import NotificationCenter from "../../components/ui-waiter/NotificationCenter";
 
 function StatusPill({ label, value, tone }) {
   const tones = {
@@ -213,6 +214,9 @@ function Dashboard() {
           </Card>
           </button>
         </div>
+
+        {/* Notifications */}
+        <NotificationCenter />
 
         {/* Status breakdown + latest orders */}
         <div className="grid gap-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">

@@ -33,7 +33,7 @@ function App() {
           <Route path="/waiter/dashboard" element={<Dashboard />} />
           <Route path="/waiter/create-order" element={<CreateOrder />} />
           <Route path="/waiter/orders" element={<ActiveOrders />} />
-          <Route path="/waiter/billing/:id" element={<Billing />} />
+          <Route path="/waiter/billing" element={<Billing />} />
           <Route path="/waiter/orders/:id" element={<OrderDetails />} />
           <Route
             path="/waiter/order-confirmation"

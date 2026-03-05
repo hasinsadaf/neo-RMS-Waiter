@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchOrders } from "../../services/order"; // adjust path if needed
+import { fetchOrders, fetchRestaurantOrders } from "../../services/order"; // adjust path if needed
 
 const Billing = () => {
   const [orders, setOrders] = useState([]);
@@ -11,17 +11,41 @@ const Billing = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchOrders();
+      const restaurantId = localStorage.getItem("restaurantId");
+      console.log("[Billing] Restaurant ID:", restaurantId);
+
+      // First, let's fetch ALL orders to see what statuses exist
+      console.log("[Billing] Fetching ALL orders to debug...");
+      const allOrdersResponse = restaurantId
+        ? await fetchRestaurantOrders(restaurantId)
+        : await fetchOrders();
+
+      const allOrders = Array.isArray(allOrdersResponse)
+        ? allOrdersResponse
+        : allOrdersResponse?.data || [];
+
+      console.log("[Billing] ALL orders:", allOrders);
+      console.log("[Billing] Available statuses:", [...new Set(allOrders.map(order => order.status))]);
+      console.log("[Billing] Orders by status:", allOrders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {}));
+
+      // Now try fetching with DELIVERED filter
+      console.log("[Billing] Now fetching DELIVERED orders...");
+      const response = restaurantId
+        ? await fetchRestaurantOrders(restaurantId, "DELIVERED")
+        : await fetchOrders("DELIVERED");
+
+      console.log("[Billing] DELIVERED API Response:", response);
+      console.log("[Billing] Response type:", typeof response, Array.isArray(response));
 
       // ✅ Handle both array and wrapped API response
-      const allOrders = Array.isArray(response)
+      const deliveredOrders = Array.isArray(response)
         ? response
         : response?.data || [];
 
-      // ✅ Filter only DELIVERED (case-safe)
-      const deliveredOrders = allOrders.filter(
-        (order) => order.status?.toUpperCase() === "DELIVERED"
-      );
+      console.log("[Billing] Filtered delivered orders:", deliveredOrders);
 
       setOrders(deliveredOrders);
     } catch (err) {
