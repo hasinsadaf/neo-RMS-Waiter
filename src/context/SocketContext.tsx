@@ -248,7 +248,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     if (socketRef.current?.connected) return;
 
     const s = socketio(SOCKET_URL, {
-      withCredentials: true,
+      withCredentials: false,
       auth: { token },
       extraHeaders: {
         "x-tenant-id": tenantId ?? "",

@@ -3,7 +3,7 @@ import { BACKEND_URL } from "../constant";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  withCredentials: false,
 });
 
 // Log API initialization
@@ -63,7 +63,9 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await api.post("/auth/refresh-token");
+        await api.post("/auth/refresh-token", undefined, {
+          withCredentials: true,
+        });
         return api(originalRequest);
       } catch (err) {
         localStorage.removeItem("authToken");
