@@ -111,7 +111,7 @@ const NotificationCenter = () => {
               </div>
               {alert.orderId && (
                 <p className="text-xs font-medium text-neutral-600 mt-1">
-                  Order #{alert.orderId}
+                  Order #{alert.orderId.slice(0, 5)}
                 </p>
               )}
               <div className="flex items-center gap-1 mt-1">

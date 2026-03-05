@@ -130,10 +130,9 @@ function Dashboard() {
 
         {/* Summary cards */}
         <div className="grid gap-4 md:grid-cols-4">
-          <button
-            type="button"
+          <div
             onClick={() => navigate("/waiter/orders")}
-            className="text-left transition-all hover:shadow-md active:scale-95"
+            className="text-left transition-all hover:shadow-md active:scale-95 cursor-pointer"
           >
             <Card className="border border-neutral-200 bg-white shadow-sm">
               <CardHeader className="pb-2">
@@ -150,12 +149,11 @@ function Dashboard() {
                 </p>
               </CardContent>
             </Card>
-          </button>
+          </div>
 
-          <button
-            type="button"
+          <div
             onClick={() => navigate("/waiter/orders")}
-            className="text-left transition-all hover:shadow-md active:scale-95"
+            className="text-left transition-all hover:shadow-md active:scale-95 cursor-pointer"
           >
             <Card className="border border-neutral-200 bg-white shadow-sm">
               <CardHeader className="pb-2">
@@ -172,12 +170,11 @@ function Dashboard() {
                 </p>
               </CardContent>
             </Card>
-          </button>
+          </div>
 
-          <button
-            type="button"
+          <div
             onClick={() => navigate("/waiter/orders")}
-            className="text-left transition-all hover:shadow-md active:scale-95"
+            className="text-left transition-all hover:shadow-md active:scale-95 cursor-pointer"
           >
             <Card className="border border-neutral-200 bg-white shadow-sm">
               <CardHeader className="pb-2">
@@ -194,9 +191,9 @@ function Dashboard() {
                 </p>
               </CardContent>
             </Card>
-          </button>
+          </div>
 
-          <button className="text-left transition-all hover:shadow-md active:scale-95">
+          <div onClick={() => {}} className="text-left transition-all hover:shadow-md active:scale-95 cursor-pointer">
           <Card className="border border-neutral-200 bg-white shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -212,7 +209,7 @@ function Dashboard() {
               </p>
             </CardContent>
           </Card>
-          </button>
+          </div>
         </div>
 
         {/* Notifications */}
@@ -276,15 +273,14 @@ function Dashboard() {
               ) : (
                 <div className="space-y-2 text-sm">
                   {latestOrders.map((order) => (
-                    <button
+                    <div
                       key={order.id}
-                      type="button"
                       onClick={() => navigate(`/waiter/orders/${order.id}`)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-[#FFF5F5] transition-transform transform active:scale-95 active:opacity-80 space-y-1"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-[#FFF5F5] transition-transform transform active:scale-95 active:opacity-80 space-y-1 cursor-pointer border border-neutral-200 bg-white shadow-sm"
                     >
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-neutral-900">
-                          Order #{order.id}
+                          Order #{order.id.slice(0, 5)}
                         </p>
                         <p className="text-sm font-semibold text-neutral-900">
                           {Number(order.totalPrice || 0).toFixed(2)}
@@ -308,7 +304,7 @@ function Dashboard() {
                           Ready
                         </span>
                       )}
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}

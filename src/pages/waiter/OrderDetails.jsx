@@ -130,7 +130,7 @@ function OrderDetails() {
                 </CardTitle>
                 {order && (
                   <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-                    ORDER #{order.id}
+                    ORDER #{order.id.slice(0, 5)}
                   </p>
                 )}
               </div>
