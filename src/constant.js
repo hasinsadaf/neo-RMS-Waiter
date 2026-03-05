@@ -14,14 +14,20 @@ export const WaiterSocketEventEnum = Object.freeze({
   // when user places an order
   ORDER_PLACED_EVENT: "orderPlaced",
 
+  // when an order is confirmed
+  ORDER_CONFIRMATION_EVENT: "orderConfirmation",
+
   // when user cancels an order
   ORDER_CANCELLED_EVENT: "orderCancelled",
 
-  // when user updates an order
-  ORDER_UPDATED_EVENT: "orderUpdated",
-
   // when order is ready
   ORDER_READY_EVENT: "orderReady",
+
+  // when order is delivered
+  ORDER_DELIVERED_EVENT: "orderDelivered",
+
+  // legacy aliases kept to avoid breaking older code paths
+  ORDER_UPDATED_EVENT: "orderUpdated",
 
   // when order is cancelled by chef
   ORDER_CANCELLED_BY_CHEF_EVENT: "orderCancelledByChef",

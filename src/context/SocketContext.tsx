@@ -29,6 +29,26 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [connected, setConnected] = useState(false);
 
+  const buildAlertMessage = (eventName: string, data: Record<string, unknown>) => {
+    const orderId = data?.orderId ? `Order: ${String(data.orderId)}` : null;
+    const confirmedBy = data?.confirmedBy
+      ? `Confirmed by: ${String(data.confirmedBy)}`
+      : null;
+    const cancelledBy = data?.cancelledBy
+      ? `Cancelled by: ${String(data.cancelledBy)}`
+      : null;
+
+    return [
+      `Socket event: ${eventName}`,
+      orderId,
+      confirmedBy,
+      cancelledBy,
+      `Payload: ${JSON.stringify(data)}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  };
+
   useEffect(() => {
     // No token or tenantId — disconnect any existing socket and bail
     if (!token || !tenantId) {
@@ -67,29 +87,34 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("[Socket] connection error:", err.message);
     });
 
-    s.on(WaiterSocketEventEnum.ORDER_PLACED_EVENT, (data) => {
+    s.on(WaiterSocketEventEnum.ORDER_PLACED_EVENT, (data: Record<string, unknown> = {}) => {
       console.log("[Socket] ORDER_PLACED_EVENT data:", data);
-      alert("Order Placed");
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_PLACED_EVENT, data));
     });
 
-    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_EVENT, (data) => {
-      console.log("[Socket] ORDER_CANCELLED_EVENT data:", data);
-      alert("Order Cancelled");
+    s.on(WaiterSocketEventEnum.ORDER_CONFIRMATION_EVENT, (data: Record<string, unknown> = {}) => {
+      console.log("[Socket] ORDER_CONFIRMATION_EVENT data:", data);
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_CONFIRMATION_EVENT, data));
     });
 
-    s.on(WaiterSocketEventEnum.ORDER_UPDATED_EVENT, (data) => {
-      console.log("[Socket] ORDER_UPDATED_EVENT data:", data);
-      alert("Order Updated");
-    });
-
-    s.on(WaiterSocketEventEnum.ORDER_READY_EVENT, (data) => {
+    s.on(WaiterSocketEventEnum.ORDER_READY_EVENT, (data: Record<string, unknown> = {}) => {
       console.log("[Socket] ORDER_READY_EVENT data:", data);
-      alert("Order Ready");
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_READY_EVENT, data));
     });
 
-    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT, (data) => {
+    s.on(WaiterSocketEventEnum.ORDER_DELIVERED_EVENT, (data: Record<string, unknown> = {}) => {
+      console.log("[Socket] ORDER_DELIVERED_EVENT data:", data);
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_DELIVERED_EVENT, data));
+    });
+
+    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_EVENT, (data: Record<string, unknown> = {}) => {
+      console.log("[Socket] ORDER_CANCELLED_EVENT data:", data);
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_CANCELLED_EVENT, data));
+    });
+
+    s.on(WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT, (data: Record<string, unknown> = {}) => {
       console.log("[Socket] ORDER_CANCELLED_BY_CHEF_EVENT data:", data);
-      alert("Order Cancelled by Chef");
+      alert(buildAlertMessage(WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT, data));
     });
 
     s.on(WaiterSocketEventEnum.SOCKET_ERROR_EVENT, (data) => {
