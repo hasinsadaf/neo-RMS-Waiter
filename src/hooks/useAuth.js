@@ -1,29 +1,54 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useReducer, useCallback } from 'react';
+
+function readAuthFromStorage() {
+  const token = localStorage.getItem('authToken');
+  const role = localStorage.getItem('authRole');
+  const tenantId = localStorage.getItem('tenantId');
+
+  return {
+    token,
+    role,
+    tenantId,
+    isAuthenticated: Boolean(token),
+  };
+}
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState(null);
+  const [, forceRefresh] = useReducer((value) => value + 1, 0);
 
-  const handleStorage = useCallback(() => {
-    const token = localStorage.getItem('authToken');
-    const storedRole = localStorage.getItem('authRole');
-
-    setIsAuthenticated(Boolean(token));
-    setRole(storedRole || null);
+  const syncAuthState = useCallback(() => {
+    forceRefresh();
   }, []);
 
   useEffect(() => {
-    handleStorage(); // set initial state
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [handleStorage]);
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener('focus', syncAuthState);
+
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener('focus', syncAuthState);
+    };
+  }, [syncAuthState]);
 
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authRole');
-    setIsAuthenticated(false);
-    setRole(null);
+    localStorage.removeItem('tenantId');
+    localStorage.removeItem('restaurantId');
+    localStorage.removeItem('waiterId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('waiterName');
+    syncAuthState();
   };
 
-  return { isAuthenticated, role, logout };
+  const authState = readAuthFromStorage();
+
+  return {
+    isAuthenticated: authState.isAuthenticated,
+    role: authState.role,
+    token: authState.token,
+    tenantId: authState.tenantId,
+    logout,
+    refreshAuth: syncAuthState,
+  };
 }

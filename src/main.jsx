@@ -4,12 +4,15 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import { ToastProvider } from "./components/ui-waiter/use-toast.jsx";
+import { SocketProvider } from "./context/SocketContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <ToastProvider>
-        <App />
+        <SocketProvider>
+          <App />
+        </SocketProvider>
       </ToastProvider>
     </BrowserRouter>
   </StrictMode>
