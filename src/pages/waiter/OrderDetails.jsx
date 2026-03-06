@@ -10,6 +10,7 @@ import {
 } from "../../components/ui-waiter/card";
 import { Button } from "../../components/ui-waiter/button";
 import { Separator } from "../../components/ui-waiter/separator";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 function StatusBadge({ status }) {
   const formattedStatus =
@@ -130,7 +131,7 @@ function OrderDetails() {
                 </CardTitle>
                 {order && (
                   <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-neutral-500">
-                    ORDER #{order.id.slice(0, 5)}
+                    ORDER #{getDisplayOrderId(order.id)}
                   </p>
                 )}
               </div>

@@ -10,6 +10,7 @@ import {
   CardFooter,
 } from "../../components/ui-waiter/card";
 import { Button } from "../../components/ui-waiter/button";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 function OrderConfirmation() {
   const location = useLocation();
@@ -50,7 +51,7 @@ function OrderConfirmation() {
           {orderId && (
             <p className="text-sm text-neutral-600">
               <span className="font-medium text-neutral-900">Order ID:</span>{" "}
-              #{orderId}
+              #{getDisplayOrderId(orderId)}
             </p>
           )}
           <p className="text-sm text-neutral-600">

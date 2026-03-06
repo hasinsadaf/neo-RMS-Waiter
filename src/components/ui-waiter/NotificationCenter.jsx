@@ -3,6 +3,7 @@ import { useSocket } from "../../context/SocketContext";
 import { Bell, X, Clock, CheckCircle2, AlertCircle, Info, XCircle } from "lucide-react";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 const NotificationCenter = () => {
   const { alerts, clearAlert, clearAllAlerts } = useSocket();
@@ -111,7 +112,7 @@ const NotificationCenter = () => {
               </div>
               {alert.orderId && (
                 <p className="text-xs font-medium text-neutral-600 mt-1">
-                  Order #{alert.orderId.slice(0, 5)}
+                  Order #{getDisplayOrderId(alert.orderId)}
                 </p>
               )}
               <div className="flex items-center gap-1 mt-1">

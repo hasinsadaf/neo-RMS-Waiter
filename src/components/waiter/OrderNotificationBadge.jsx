@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { fetchReadyOrders } from "../../services/order";
 import { useToast } from "../ui-waiter/use-toast";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 function normalizeOrders(data) {
   if (Array.isArray(data)) return data;
@@ -34,7 +35,7 @@ export default function OrderNotificationBadge({ pollIntervalMs = 10000 }) {
           const o = newlyReady[0];
           toast({
             title: "New order ready",
-            description: `Order #${o.id} is ready (Table ${o.tableNumber}).`,
+            description: `Order #${getDisplayOrderId(o.id)} is ready (Table ${o.tableNumber}).`,
           });
         } else if (newlyReady.length > 1) {
           toast({

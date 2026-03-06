@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/waiter/Dashboard.jsx";
 import CreateOrder from "./pages/waiter/CreateOrder.jsx";
 import ActiveOrders from "./pages/waiter/ActiveOrders.jsx";
-import Billing from "./pages/waiter/Billing.jsx";
 import OrderDetails from "./pages/waiter/OrderDetails.jsx";
 import OrderConfirmation from "./pages/waiter/OrderConfirmation.jsx";
 import Profile from "./pages/waiter/Profile.jsx";
@@ -33,7 +32,6 @@ function App() {
           <Route path="/waiter/dashboard" element={<Dashboard />} />
           <Route path="/waiter/create-order" element={<CreateOrder />} />
           <Route path="/waiter/orders" element={<ActiveOrders />} />
-          <Route path="/waiter/billing" element={<Billing />} />
           <Route path="/waiter/orders/:id" element={<OrderDetails />} />
           <Route
             path="/waiter/order-confirmation"

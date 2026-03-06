@@ -9,6 +9,7 @@ import socketio from "socket.io-client";
 import Swal from "sweetalert2";
 import { SOCKET_URL, WaiterSocketEventEnum } from "../constant";
 import { useAuth } from "../hooks/useAuth";
+import { getDisplayOrderId } from "../utils/orderId";
 
 const SocketContext = createContext<{
   socket: ReturnType<typeof socketio> | null;
@@ -59,6 +60,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const showAlert = (eventName: string, data: Record<string, unknown> = {}) => {
     const orderId = data?.orderId as string;
+    const displayOrderId = orderId ? getDisplayOrderId(orderId) : "";
     const timestamp = new Date();
     const alertId = `${eventName}-${orderId || 'general'}-${timestamp.getTime()}`;
 
@@ -95,7 +97,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           title: 'New Order Placed!',
           html: `
             <div class="space-y-1">
-              ${orderId ? `<div class="font-medium text-blue-600">Order #${orderId}</div>` : ''}
+              ${orderId ? `<div class="font-medium text-blue-600">Order #${displayOrderId}</div>` : ''}
               <div class="text-gray-600">A new order has been placed</div>
               <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString()}</div>
             </div>
@@ -113,7 +115,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           title: 'Order Confirmed!',
           html: `
             <div class="space-y-1">
-              ${orderId ? `<div class="font-medium text-green-600">Order #${orderId}</div>` : ''}
+              ${orderId ? `<div class="font-medium text-green-600">Order #${displayOrderId}</div>` : ''}
               <div class="text-gray-600">Order has been confirmed</div>
               <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString()}</div>
             </div>
@@ -131,7 +133,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           title: 'Order Ready!',
           html: `
             <div class="space-y-1">
-              ${orderId ? `<div class="font-medium text-amber-600">Order #${orderId}</div>` : ''}
+              ${orderId ? `<div class="font-medium text-amber-600">Order #${displayOrderId}</div>` : ''}
               <div class="text-gray-600">Order is ready to serve</div>
               <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString()}</div>
             </div>
@@ -149,7 +151,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           title: 'Order Delivered!',
           html: `
             <div class="space-y-1">
-              ${orderId ? `<div class="font-medium text-emerald-600">Order #${orderId}</div>` : ''}
+              ${orderId ? `<div class="font-medium text-emerald-600">Order #${displayOrderId}</div>` : ''}
               <div class="text-gray-600">Order has been delivered</div>
               <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString()}</div>
             </div>
@@ -168,7 +170,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
           title: eventName === WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT ? 'Order Cancelled by Chef!' : 'Order Cancelled!',
           html: `
             <div class="space-y-1">
-              ${orderId ? `<div class="font-medium text-red-600">Order #${orderId}</div>` : ''}
+              ${orderId ? `<div class="font-medium text-red-600">Order #${displayOrderId}</div>` : ''}
               <div class="text-gray-600">${eventName === WaiterSocketEventEnum.ORDER_CANCELLED_BY_CHEF_EVENT ? 'Order was cancelled by the chef' : 'Order has been cancelled'}</div>
               <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString()}</div>
             </div>
@@ -213,7 +215,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const buildAlertMessage = (eventName: string, data: Record<string, unknown>) => {
-    const orderId = data?.orderId ? `Order: ${String(data.orderId)}` : null;
+    const orderId = data?.orderId
+      ? `Order: ${getDisplayOrderId(String(data.orderId))}`
+      : null;
     const confirmedBy = data?.confirmedBy
       ? `Confirmed by: ${String(data.confirmedBy)}`
       : null;

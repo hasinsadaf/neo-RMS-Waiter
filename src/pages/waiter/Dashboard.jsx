@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, List, CheckCircle2, Coffee, Calendar, Clock } from "lucide-react";
 import { fetchOrders, fetchRestaurantOrders } from "../../services/order";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 import {
   Card,
@@ -280,7 +281,7 @@ function Dashboard() {
                     >
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-neutral-900">
-                          Order #{order.id.slice(0, 5)}
+                          Order #{getDisplayOrderId(order.id)}
                         </p>
                         <p className="text-sm font-semibold text-neutral-900">
                           {Number(order.totalPrice || 0).toFixed(2)}

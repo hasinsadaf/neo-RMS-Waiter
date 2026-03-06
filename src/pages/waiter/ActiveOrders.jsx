@@ -10,6 +10,7 @@ import {
   CardContent,
 } from "../../components/ui-waiter/card";
 import { Input } from "../../components/ui-waiter/input";
+import { getDisplayOrderId } from "../../utils/orderId";
 
 
 function StatusBadge({ status }) {
@@ -149,7 +150,7 @@ function ActiveOrders() {
                           onClick={() => navigate(`/waiter/orders/${order.id}`)}
                         >
                           <td className="px-4 py-3 text-sm font-medium text-neutral-900">
-                            #{order.id}
+                            #{getDisplayOrderId(order.id)}
                           </td>
                           <td className="px-4 py-3 text-sm text-neutral-700">
                             {order.type || order.orderType || "-"}

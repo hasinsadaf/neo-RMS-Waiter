@@ -4,7 +4,6 @@ import {
   Home,
   PlusCircle,
   List,
-  CreditCard,
   Menu,
   User,
   LogOut,
@@ -38,11 +37,6 @@ const navItems = [
     label: "Active Orders",
     to: "/waiter/orders",
     icon: List,
-  },
-  {
-    label: "Billing",
-    to: "/waiter/billing",
-    icon: CreditCard,
   },
 ];
 
@@ -110,10 +104,7 @@ function WaiterSidebar() {
     }
 
     if (to === "/waiter/orders?status=Ready") {
-      return (
-        (pathname === "/waiter/orders" && status === "Ready") ||
-        pathname.startsWith("/waiter/billing")
-      );
+      return pathname === "/waiter/orders" && status === "Ready";
     }
 
     return pathname === to;

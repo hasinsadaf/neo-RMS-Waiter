@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchOrders, fetchRestaurantOrders } from "../../services/order"; // adjust path if needed
+import { getDisplayOrderId } from "../../utils/orderId";
 
 const Billing = () => {
   const [orders, setOrders] = useState([]);
@@ -86,7 +87,7 @@ const Billing = () => {
           <tbody>
             {orders.map((order) => (
               <tr key={order.id}>
-                <td>{order.id}</td>
+                <td>{getDisplayOrderId(order.id)}</td>
                 <td>{order.customerName || "N/A"}</td>
                 <td>{order.totalAmount}</td>
                 <td>{order.status}</td>

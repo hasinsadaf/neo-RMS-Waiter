@@ -197,12 +197,6 @@ function WaiterFooter() {
               >
                 Active Orders
               </Link>
-              <Link
-                to="/waiter/billing"
-                className="text-neutral-600 hover:text-neutral-900 hover:underline underline-offset-4"
-              >
-                Billing
-              </Link>
             </nav>
           </div>
 
