@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
+  Check,
   Clock,
   ClipboardList,
   Grid3X3,
@@ -489,14 +490,27 @@ function CreateOrder() {
                               key={table.id}
                               type="button"
                               onClick={() => setSelectedTableId(table.id)}
-                              className={`w-full rounded-lg border px-3 py-2 text-left transition ${
+                              className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-150 ${
                                 active
-                                  ? "border-[#FF4D4F] bg-[#FFF5F5]"
-                                  : "border-neutral-200 bg-white hover:border-[#FFB3B3]"
+                                  ? "border-neutral-800 bg-white shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
+                                  : "border-neutral-200 bg-[#FAFAFA] hover:border-neutral-300 hover:bg-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
                               }`}
+                              style={{
+                                backgroundColor: "#ffffff",
+                                borderColor: active ? "#262626" : "#e5e5e5",
+                                color: "#171717",
+                              }}
                             >
-                              <div className="text-sm font-medium text-neutral-800">
-                                Table {table.tableNumber}
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-sm font-medium text-neutral-800">
+                                  Table {table.tableNumber}
+                                </div>
+                                {active && (
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-neutral-400 bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-800">
+                                    <Check className="h-3 w-3" />
+                                    Selected
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-neutral-500">
                                 Capacity: {table.capacity || "-"}
@@ -535,14 +549,27 @@ function CreateOrder() {
                               key={`${customer.name}-${customer.phone}`}
                               type="button"
                               onClick={() => setSelectedCustomer(customer)}
-                              className={`w-full rounded-lg border px-3 py-2 text-left transition ${
+                              className={`w-full rounded-xl border px-4 py-3 text-left transition-all duration-150 ${
                                 active
-                                  ? "border-[#FF4D4F] bg-[#FFF5F5]"
-                                  : "border-neutral-200 bg-white hover:border-[#FFB3B3]"
+                                  ? "border-neutral-800 bg-white shadow-[0_4px_14px_rgba(0,0,0,0.08)]"
+                                  : "border-neutral-200 bg-[#FAFAFA] hover:border-neutral-300 hover:bg-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
                               }`}
+                              style={{
+                                backgroundColor: "#ffffff",
+                                borderColor: active ? "#262626" : "#e5e5e5",
+                                color: "#171717",
+                              }}
                             >
-                              <div className="text-sm font-medium text-neutral-800">
-                                {customer.name}
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-sm font-medium text-neutral-800">
+                                  {customer.name}
+                                </div>
+                                {active && (
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-neutral-400 bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-800">
+                                    <Check className="h-3 w-3" />
+                                    Selected
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-neutral-500">
                                 {customer.phone}
@@ -578,7 +605,12 @@ function CreateOrder() {
                       size="sm"
                       onClick={handleAddSelectedMenuItem}
                       disabled={!selectedMenuItem || isMenuLoading}
-                      className="gap-1 rounded-full"
+                      className="gap-1 rounded-xl border-neutral-300 px-4 text-neutral-700 hover:bg-neutral-100"
+                      style={{
+                        backgroundColor: selectedMenuItem ? "#262626" : "#f5f5f5",
+                        borderColor: selectedMenuItem ? "#262626" : "#d4d4d8",
+                        color: selectedMenuItem ? "#ffffff" : "#737373",
+                      }}
                     >
                       <Plus className="h-4 w-4" />
                       Add to Order
@@ -612,6 +644,30 @@ function CreateOrder() {
                       )}
                     </select>
                   </div>
+
+                  {selectedMenuItem && (
+                    <div className="rounded-xl border border-neutral-300 bg-white px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-700">
+                        Currently Selected Item
+                      </p>
+                      <div className="mt-2 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-neutral-900">
+                            {selectedMenuItem.name}
+                          </p>
+                          <p className="text-xs text-neutral-500">
+                            {selectedMenuItem.category}
+                          </p>
+                        </div>
+                        <p className="text-sm font-semibold text-neutral-900">
+                          {selectedMenuItem.price.toFixed(2)}
+                        </p>
+                      </div>
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Click “Add to Order” to include this item in the order list.
+                      </p>
+                    </div>
+                  )}
 
                   {isMenuLoading && (
                     <p className="text-sm text-neutral-500">Loading menu items...</p>
@@ -810,14 +866,24 @@ function CreateOrder() {
               type="button"
               onClick={() => navigate(-1)}
               variant="outline"
-              className="rounded-full"
+              className="rounded-xl border-neutral-300 px-5 text-neutral-700 hover:bg-neutral-100"
+              style={{
+                backgroundColor: "#ffffff",
+                borderColor: "#d4d4d8",
+                color: "#262626",
+              }}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="rounded-full"
+              className="rounded-xl px-5 bg-neutral-900 text-white hover:bg-neutral-800"
+              style={{
+                backgroundColor: "#262626",
+                color: "#ffffff",
+                borderColor: "#262626",
+              }}
               disabled={isSubmitting || items.length === 0}
             >
               {isSubmitting ? "Creating..." : "Create Order"}
