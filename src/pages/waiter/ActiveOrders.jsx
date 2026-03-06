@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Eye, Clock } from "lucide-react";
-import { fetchOrders, fetchRestaurantOrders } from "@/services/order";
+import { Clock } from "lucide-react";
+import {
+  fetchOrders,
+  fetchRestaurantOrdersPaginated,
+} from "@/services/order";
 
 import {
   Card,
@@ -11,6 +14,19 @@ import {
 } from "../../components/ui-waiter/card";
 import { Input } from "../../components/ui-waiter/input";
 import { getDisplayOrderId } from "../../utils/orderId";
+
+const ORDER_STATUS_OPTIONS = [
+  "PENDING",
+  "CONFIRMED",
+  "PREPARING",
+  "READY",
+  "DELIVERED",
+  "CANCELLED",
+  "COMPLETED",
+];
+
+const SORT_BY_OPTIONS = ["createdAt", "updatedAt"];
+const SORT_ORDER_OPTIONS = ["asc", "desc"];
 
 
 function StatusBadge({ status }) {
@@ -54,6 +70,9 @@ function SkeletonRow() {
         <div className="h-4 w-24 rounded bg-neutral-200" />
       </td>
       <td className="px-4 py-3">
+        <div className="h-4 w-24 rounded bg-neutral-200" />
+      </td>
+      <td className="px-4 py-3">
         <div className="h-6 w-24 rounded-full bg-neutral-200" />
       </td>
     </tr>
@@ -67,11 +86,52 @@ function ActiveOrders() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const statusParam = useMemo(() => {
     const params = new URLSearchParams(location.search);
     return params.get("status");
   }, [location.search]);
+
+  const selectedStatus = useMemo(() => {
+    if (!statusParam) return "";
+    const normalized = String(statusParam).trim().toUpperCase();
+    return ORDER_STATUS_OPTIONS.includes(normalized) ? normalized : "";
+  }, [statusParam]);
+
+  const handleStatusChange = (nextStatus) => {
+    const params = new URLSearchParams(location.search);
+
+    if (nextStatus) {
+      params.set("status", nextStatus);
+    } else {
+      params.delete("status");
+    }
+
+    const nextSearch = params.toString();
+    navigate(
+      {
+        pathname: location.pathname,
+        search: nextSearch ? `?${nextSearch}` : "",
+      },
+      { replace: false },
+    );
+  };
+
+  const formatDateTime = (value) => {
+    if (!value) return "-";
+
+    return new Date(value).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const loadOrders = useCallback(async () => {
     try {
@@ -79,21 +139,53 @@ function ActiveOrders() {
       setError(null);
 
       const restaurantId = localStorage.getItem("restaurantId");
-      console.log("[ActiveOrders] fetching all orders, restaurantId", restaurantId);
-      const data = restaurantId
-        ? await fetchRestaurantOrders(restaurantId)
-        : await fetchOrders();
-      setOrders(data || []);
+      console.log("[ActiveOrders] fetching paginated orders", {
+        restaurantId,
+        page,
+        limit,
+        status: selectedStatus || undefined,
+        sortBy,
+        sortOrder,
+      });
+
+      if (restaurantId) {
+        const response = await fetchRestaurantOrdersPaginated(restaurantId, {
+          page,
+          limit,
+          statuses: selectedStatus || undefined,
+          sortBy,
+          sortOrder,
+        });
+
+        setOrders(response?.data || []);
+        setTotalOrders(Number(response?.meta?.total || 0));
+      } else {
+        const data = await fetchOrders(selectedStatus || undefined);
+        const allOrders = data || [];
+        const sortedOrders = [...allOrders].sort((a, b) => {
+          const aTime = new Date(a?.[sortBy] || 0).getTime();
+          const bTime = new Date(b?.[sortBy] || 0).getTime();
+          return sortOrder === "asc" ? aTime - bTime : bTime - aTime;
+        });
+        const startIndex = (page - 1) * limit;
+        const paginatedOrders = sortedOrders.slice(startIndex, startIndex + limit);
+        setOrders(paginatedOrders);
+        setTotalOrders(sortedOrders.length);
+      }
     } catch (err) {
       setError("Failed to load active orders. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [limit, page, selectedStatus, sortBy, sortOrder]);
 
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedStatus, limit, sortBy, sortOrder]);
 
   const filteredOrders = useMemo(() => {
     if (!searchTerm.trim()) return orders;
@@ -103,6 +195,20 @@ function ActiveOrders() {
         .includes(searchTerm.trim().toLowerCase())
     );
   }, [orders, searchTerm]);
+
+  const totalPages = useMemo(() => {
+    if (!totalOrders || !limit) return 1;
+    return Math.max(1, Math.ceil(totalOrders / limit));
+  }, [totalOrders, limit]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const hasPreviousPage = page > 1;
+  const hasNextPage = page < totalPages;
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 text-neutral-900">
@@ -114,6 +220,40 @@ function ActiveOrders() {
                 Active Orders
               </CardTitle>
               <div className="flex items-center gap-3">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+                >
+                  <option value="">All Statuses</option>
+                  {ORDER_STATUS_OPTIONS.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+                >
+                  {SORT_BY_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      Sort By: {option}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900"
+                >
+                  {SORT_ORDER_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
                 <Input
                   type="text"
                   placeholder="Search by order type..."
@@ -134,6 +274,7 @@ function ActiveOrders() {
                     <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3">Total</th>
                     <th className="px-4 py-3">Created At</th>
+                    <th className="px-4 py-3">Updated At</th>
                     <th className="px-4 py-3">Status</th>
                   </tr>
                 </thead>
@@ -161,14 +302,13 @@ function ActiveOrders() {
                           <td className="px-4 py-3 text-sm text-neutral-600">
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3 text-neutral-400" />
-                              {order.createdAt
-                                ? new Date(order.createdAt).toLocaleTimeString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "-"}
+                              {formatDateTime(order.createdAt)}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-600">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-neutral-400" />
+                              {formatDateTime(order.updatedAt)}
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -179,7 +319,7 @@ function ActiveOrders() {
                     : !error && (
                         <tr>
                           <td
-                            colSpan={5}
+                            colSpan={6}
                             className="px-4 py-8 text-center text-sm text-neutral-500"
                           >
                             No active orders found.
@@ -193,6 +333,50 @@ function ActiveOrders() {
             {error && !isLoading && (
               <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
+              </div>
+            )}
+
+            {!error && !isLoading && (
+              <div className="mt-4 flex flex-col gap-3 border-t border-neutral-200 pt-4 md:flex-row md:items-center md:justify-between">
+                <p className="text-sm text-neutral-600">
+                  Page {page} of {totalPages} · Total orders: {totalOrders}
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="orders-per-page"
+                    className="text-sm text-neutral-600"
+                  >
+                    Rows:
+                  </label>
+                  <select
+                    id="orders-per-page"
+                    value={limit}
+                    onChange={(e) => setLimit(Number(e.target.value))}
+                    className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm text-neutral-900"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    disabled={!hasPreviousPage || isLoading}
+                    className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPage((prev) => prev + 1)}
+                    disabled={!hasNextPage || isLoading}
+                    className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </CardContent>

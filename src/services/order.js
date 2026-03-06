@@ -91,6 +91,60 @@ export async function fetchRestaurantOrders(restaurantId, statuses) {
   return fetchOrders(statuses, restaurantId);
 }
 
+export async function fetchRestaurantOrdersPaginated(
+  restaurantId,
+  {
+    page = 1,
+    limit = 10,
+    statuses,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = {},
+) {
+  const rid = restaurantId || localStorage.getItem("restaurantId");
+  if (!rid) {
+    throw new Error("restaurantId is required to fetch restaurant orders");
+  }
+
+  const params = {
+    page,
+    limit,
+    sortBy,
+  };
+
+  const normalizedSortOrder =
+    String(sortOrder).toLowerCase() === "asc" ? "asc" : "desc";
+  params.sortOrder = normalizedSortOrder;
+  params.sortorder = normalizedSortOrder;
+
+  if (statuses) {
+    const list = Array.isArray(statuses) ? statuses : String(statuses).split(",");
+    const normalizedStatus = list
+      .map((status) => String(status).trim().toUpperCase())
+      .filter((status) => status.length)
+      .join(",");
+
+    if (normalizedStatus) {
+      params.status = normalizedStatus;
+    }
+  }
+
+  const res = await api.get(`/order/restaurant-orders/${rid}`, { params });
+  const payload = res.data || {};
+
+  return {
+    statusCode: payload.statusCode,
+    success: payload.success,
+    message: payload.message,
+    meta: payload.meta || {
+      total: 0,
+      page,
+      limit,
+    },
+    data: payload.data || [],
+  };
+}
+
 // a simpler helper when you only need to GET all orders for a restaurant
 // (no status query). the request will automatically include the auth token
 // and tenantid header via the shared axios instance.

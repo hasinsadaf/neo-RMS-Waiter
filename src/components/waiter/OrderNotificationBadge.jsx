@@ -65,7 +65,7 @@ export default function OrderNotificationBadge({ pollIntervalMs = 10000 }) {
   return (
     <button
       type="button"
-      onClick={() => navigate("/waiter/orders?status=Ready")}
+      onClick={() => navigate("/waiter/orders?status=READY")}
       className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#FF4D4F]/40 bg-white text-[#FF4D4F] shadow-sm hover:bg-[#FFF5F5] hover:text-[#FF7F7F] transition-colors transform active:scale-95 active:opacity-80"
       aria-label="Ready order notifications"
     >

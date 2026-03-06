@@ -95,16 +95,10 @@ function WaiterSidebar() {
   }, []);
 
   const isNavItemActive = (to) => {
-    const { pathname, search } = location;
-    const params = new URLSearchParams(search);
-    const status = params.get("status");
+    const { pathname } = location;
 
     if (to === "/waiter/orders") {
-      return pathname === "/waiter/orders" && status !== "Ready";
-    }
-
-    if (to === "/waiter/orders?status=Ready") {
-      return pathname === "/waiter/orders" && status === "Ready";
+      return pathname === "/waiter/orders";
     }
 
     return pathname === to;
