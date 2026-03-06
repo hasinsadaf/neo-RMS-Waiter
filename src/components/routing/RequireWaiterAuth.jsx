@@ -13,6 +13,9 @@ export default function RequireWaiterAuth() {
   if (role && role !== "WAITER") {
     localStorage.removeItem("authToken");
     localStorage.removeItem("authRole");
+    localStorage.removeItem("tenantId");
+    localStorage.removeItem("restaurantId");
+    localStorage.removeItem("waiterId");
     return <Navigate to="/waiter/login" replace />;
   }
 

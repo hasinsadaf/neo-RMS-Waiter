@@ -122,6 +122,9 @@ function WaiterSidebar() {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("authRole");
+    localStorage.removeItem("tenantId");
+    localStorage.removeItem("restaurantId");
+    localStorage.removeItem("waiterId");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
     localStorage.removeItem("waiterName");

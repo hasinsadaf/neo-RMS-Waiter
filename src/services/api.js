@@ -70,6 +70,9 @@ api.interceptors.response.use(
       } catch (err) {
         localStorage.removeItem("authToken");
         localStorage.removeItem("authRole");
+        localStorage.removeItem("tenantId");
+        localStorage.removeItem("restaurantId");
+        localStorage.removeItem("waiterId");
         window.location.href = "/waiter/login";
       }
     }
