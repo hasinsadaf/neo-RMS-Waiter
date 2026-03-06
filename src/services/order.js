@@ -60,7 +60,7 @@ export async function fetchOrders(statuses, restaurantId) {
 
 export async function createOrder(payload) {
   const res = await api.post("/order", payload);
-  return res.data;
+  return res.data?.data || res.data;
 }
 
 export async function getOrder(id) {

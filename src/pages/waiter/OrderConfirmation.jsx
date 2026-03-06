@@ -16,14 +16,32 @@ function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const orderFromState = location.state?.order || location.state || {};
+  const orderEnvelope = location.state?.order || location.state || {};
+  const orderFromState =
+    orderEnvelope?.data ||
+    orderEnvelope?.order ||
+    orderEnvelope;
+  const fallback = location.state?.fallback || {};
+
   const orderId = orderFromState.id ?? orderFromState.orderId;
   const tableNumber =
-    orderFromState.tableNumber ?? orderFromState.table_no ?? "-";
+    orderFromState.tableNumber ??
+    orderFromState.table_no ??
+    orderFromState.table?.tableNumber ??
+    fallback.tableNumber ??
+    "-";
+
+  const totalCandidate =
+    orderFromState.totalPrice ??
+    orderFromState.total ??
+    orderFromState.subtotal ??
+    fallback.total ??
+    0;
+
   const total =
-    typeof orderFromState.total === "number"
-      ? orderFromState.total
-      : Number(orderFromState.total || 0);
+    typeof totalCandidate === "number"
+      ? totalCandidate
+      : Number(totalCandidate || 0);
 
   const handleViewActiveOrders = () => {
     navigate("/waiter/orders");
